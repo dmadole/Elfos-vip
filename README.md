@@ -1,4 +1,4 @@
-#Studio II Loader for Elf/OS
+# Studio II Loader for Elf/OS
 
 This program loads Studio II cartridge image files (.st2 files) as supported
 by the [Emma 02 Emulator](https://www.emma02.hobby-site.com/) Under Elf/OS,
