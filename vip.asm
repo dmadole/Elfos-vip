@@ -40,10 +40,10 @@ start:      org   2000h
 
             ; Build information
 
-            db    10+80h                 ; month
-            db    2                     ; day
+            db    10+80h                ; month
+            db    3                     ; day
             dw    2022                  ; year
-            dw    1                     ; build
+            dw    2                     ; build
 
             db    'See github.com/dmadole/Elfos-vip for more info',0
 
