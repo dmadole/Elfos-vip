@@ -50,11 +50,17 @@ start:      org   2000h
 
            ; Main code starts here, check provided argument
 
-main:       req                         ; turn off in case already on
+main:       ldi   high file             ; place to append filename to path
+            phi   rb
+            ldi   low file
+            plo   rb
 
 skpspac:    lda   ra                    ; skip any leading spaces, copy rom
             lbz   copyrom               ;  if no filename chars found
-            sdi   ' '
+
+            str   rb                    ; save to prefixed buffer
+
+            sdi   ' '                   ; if whitespace then skip
             lbdf  skpspac
 
             ghi   ra                    ; save pointer to position
@@ -65,8 +71,13 @@ skpspac:    lda   ra                    ; skip any leading spaces, copy rom
             dec   rf                    ; adjust to first character
 
 skpname:    lda   ra                    ; skip any non-space characters,
-            lbz   endname               ;  if end then go copy rom
-            sdi   ' '
+
+            inc   rb                    ; save to prefixed buffer
+            str   rb
+
+            lbz   endname               ; if end then go copy rom
+
+            sdi   ' '                   ; skip until next whitespace
             lbnf  skpname
 
             dec   ra                    ; zero terminate over first space
@@ -83,6 +94,15 @@ endname:    plo   r7                    ; set flags to zero
             phi   rd
             ldi   low fildes
             plo   rd
+
+            sep   scall                 ; open file for read
+            dw    o_open
+            lbnf  opened
+
+            ldi   high path             ; try again with prefixed name
+            phi   rf
+            ldi   low path
+            plo   rf
 
             sep   scall                 ; open file for read
             dw    o_open
@@ -200,6 +220,8 @@ romloop:    lda   r7                    ; copy one byte of rom image
             ldi   low 8028h
             plo   r2
 
+            req                         ; turn off in case already on
+
             sex   r3                    ; inline arguments for next opcodes
 
             out   EXP_PORT              ; set port expander to group 1
@@ -287,9 +309,13 @@ rom:        db    0f8h,080h,0b2h,0f8h,008h,0a2h,0e2h,0d2h
             db    042h,0fah,00fh,0d5h,08eh,0f6h,0aeh,032h
             db    0dch,03bh,0eah,01dh,01dh,030h,0eah,001h
 
-end:        ; That's all folks!
+path:       db    '/vip/'
+
+file:       ; filename will be appended here
+
+end:        ; end of what is included in the executable size
 
 dta:        ds    512
 
-ram:        ; Now that's really all!
+ram:        ; static memory address where vip code will be buffered
 
