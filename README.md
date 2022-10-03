@@ -8,3 +8,5 @@ Currently I run this on the 1802/Mini with the as-yet experimental Pixie Video c
 
 When run with no command line argument, it just starts the monitor ROM. When given a filename argument, it loads that binary image to RAM at 0000 and runs it as the monitor ROM on the VIP would.
 
+If the file is not found at the pathname given, it is prefixed with /vip and tried again. This way the vip binaries can be store under /vip and found automatically just by their short name, making them easier to run.
+
