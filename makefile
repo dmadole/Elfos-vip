@@ -1,6 +1,6 @@
 
-st2.bin: st2.asm include/bios.inc include/kernel.inc
-	asm02 -b -L st2.asm
+vip.bin: vip.asm include/bios.inc include/kernel.inc
+	asm02 -b -L vip.asm
 
 clean:
 	-rm -f *.bin *.lst
