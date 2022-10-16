@@ -41,9 +41,9 @@ start:      org   2000h
             ; Build information
 
             db    10+80h                ; month
-            db    3                     ; day
+            db    14                    ; day
             dw    2022                  ; year
-            dw    2                     ; build
+            dw    3                     ; build
 
             db    'See github.com/dmadole/Elfos-vip for more info',0
 
@@ -83,7 +83,9 @@ skpname:    lda   ra                    ; skip any non-space characters,
             dec   ra                    ; zero terminate over first space
             ldi   0                     ;  character
             str   ra
-
+   
+            inc   rb                    ; zero terminate copy of name
+            str   0
 
             ; We have a filename at this point so open the file to read
             ; the RAM image in.
@@ -95,6 +97,10 @@ endname:    plo   r7                    ; set flags to zero
             ldi   low fildes
             plo   rd
 
+            ldn   rf                    ; if absolute path, try just that
+            smi   '/'
+            lbz   direct
+
             sep   scall                 ; open file for read
             dw    o_open
             lbnf  opened
@@ -105,6 +111,34 @@ endname:    plo   r7                    ; set flags to zero
             plo   rf
 
             sep   scall                 ; open file for read
+            dw    o_open
+            lbnf  opened
+
+            ldi   high ext              ; pointer to .vip extension
+            phi   rf
+            ldi   low ext
+            plo   rf
+
+copyext:    lda   rf                    ; append to copy
+            str   rb
+            inc   rb
+            lbnz  copyext
+
+            ldi   high file             ; try name with .vip extension
+            phi   rf
+            ldi   low file
+            plo   rf
+
+            sep   scall                 ; open file for read
+            dw    o_open
+            lbnf  opened
+
+            ldi   high path             ; try prefixed name with .vip
+            phi   rf
+            ldi   low path
+            plo   rf
+
+direct:     sep   scall                 ; open file for read
             dw    o_open
             lbnf  opened
 
@@ -308,6 +342,8 @@ rom:        db    0f8h,080h,0b2h,0f8h,008h,0a2h,0e2h,0d2h
             db    0d8h,0adh,002h,0f6h,0f6h,0f6h,0f6h,0d5h
             db    042h,0fah,00fh,0d5h,08eh,0f6h,0aeh,032h
             db    0dch,03bh,0eah,01dh,01dh,030h,0eah,001h
+
+ext:        db    '.vip',0
 
 path:       db    '/vip/'
 
